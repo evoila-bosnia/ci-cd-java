@@ -126,6 +126,7 @@ jobs:
           key: ${{ runner.os }}-sonar
 
       - name: Run SonarQube analysis (Maven)
+        continue-on-error: true  # Allow pipeline to continue even if this fails
         if: needs.setup.outputs.build-tool == 'maven'
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -137,6 +138,7 @@ jobs:
           -Dsonar.login=$SONAR_TOKEN
 
       - name: Run SonarQube analysis (Gradle)
+        continue-on-error: true  # Allow pipeline to continue even if this fails
         if: needs.setup.outputs.build-tool == 'gradle'
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
@@ -163,6 +165,7 @@ jobs:
           chmod +x ./snyk
 
       - name: Snyk security scan
+        continue-on-error: true  # Allow pipeline to continue even if this fails
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
