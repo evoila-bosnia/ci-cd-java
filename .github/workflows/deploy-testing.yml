@@ -215,11 +215,11 @@ jobs:
             ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
             ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:${{ steps.vars.outputs.sha_short }}
 
-    # - name: Deploy to Azure Web App
-    #   uses: azure/webapps-deploy@v2
-    #   with:
-    #     app-name: ${{ secrets.AZURE_APP_NAME }}
-    #     images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
+     - name: Deploy to Azure Web App
+       uses: azure/webapps-deploy@v2
+       with:
+         app-name: ${{ secrets.AZURE_APP_NAME }}
+         images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
 
 
 
