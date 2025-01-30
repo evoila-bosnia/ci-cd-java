@@ -177,6 +177,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      id-token: write
     needs:
       - unit-test
       - integration-test
