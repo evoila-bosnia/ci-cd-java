@@ -171,50 +171,52 @@ jobs:
         run: |
           ./snyk monitor --all-projects --org=20e9dee4-5f99-42d2-b969-e23183e592fe
 
-  build-docker:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    needs:
-      - unit-test
-      - integration-test
-      - lint
-      - sonar-analysis
-      - security-scan
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to a Container Registry
-        uses: azure/docker-login@v2
-        env:
-          CR_USERNAME: ${{ secrets.CR_USERNAME || github.actor }}
-          CR_PASSWORD: ${{ secrets.CR_PASSWORD || secrets.GITHUB_TOKEN }}
-          CR_LOGIN_SERVER: ${{ secrets.CR_LOGIN_SERVER || 'ghcr.io' }}
-        with:
-          login-server: ${{ env.CR_LOGIN_SERVER }}
-          username: ${{ env.CR_USERNAME }}
-          password: ${{ env.CR_PASSWORD }}
-
-      - id: vars
-        run: |
-          echo "sha_short=$(echo ${GITHUB_SHA::0,7})" >> $GITHUB_OUTPUT
-          echo "IMAGE_ID=$(echo ${{ github.repository }} | tr '[A-Z]' '[a-z]')" >> $GITHUB_OUTPUT
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        env:
-          TAG_SHA: ${{ steps.vars.outputs.sha_short }}
-          IMAGE_ID: ${{ steps.vars.outputs.IMAGE_ID }}
-          CR_LOGIN_SERVER: ${{ secrets.CR_LOGIN_SERVER || 'ghcr.io' }}
-        with:
-          context: .
-          push: true
-          tags: |
-            ${{ env.CR_LOGIN_SERVER }}/${{ env.IMAGE_ID }}:latest
-            ${{ env.CR_LOGIN_SERVER }}/${{ env.IMAGE_ID }}:${{ env.TAG_SHA }}
+        build-docker:
+            if: github.ref == 'refs/heads/main'
+            runs-on: ubuntu-latest
+            permissions:
+              contents: read
+              packages: write
+            needs:
+              - unit-test
+              - integration-test
+              - lint
+              - sonar-analysis
+              - security-scan
+            steps:
+              - name: Checkout code
+                uses: actions/checkout@v4
+        
+              - name: Set up Docker Buildx
+                uses: docker/setup-buildx-action@v3
+        
+              - name: Log in to Azure CLI
+                uses: azure/login@v2
+                with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        
+              - name: Log in to Azure Container Registry
+                run: az acr login --name ${{ secrets.AZURE_ACR_NAME }}
+        
+              - id: vars
+                run: |
+                  echo "sha_short=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
+                  echo "image_id=$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')" >> $GITHUB_OUTPUT
+        
+              - name: Build and push Docker image to ACR
+                uses: docker/build-push-action@v5
+                with:
+                  context: .
+                  push: true
+                  tags: |
+                    ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
+                    ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:${{ steps.vars.outputs.sha_short }}
+        
+             # - name: Deploy to Azure Web App
+              #  uses: azure/webapps-deploy@v2
+              #  with:
+               #   app-name: ${{ secrets.AZURE_APP_NAME }}
+                #  images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
+        
