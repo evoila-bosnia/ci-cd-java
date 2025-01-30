@@ -170,53 +170,58 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
           ./snyk monitor --all-projects --org=20e9dee4-5f99-42d2-b969-e23183e592fe
-
    build-docker:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
-     contents: read
-     packages: write
+      contents: read
+      packages: write
     needs:
-     - unit-test
-     - integration-test
-     - lint
-     - sonar-analysis
-     - security-scan
-   steps:
-     - name: Checkout code
-       uses: actions/checkout@v4
+      - unit-test
+      - integration-test
+      - lint
+      - sonar-analysis
+      - security-scan
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-     - name: Set up Docker Buildx
-       uses: docker/setup-buildx-action@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-     - name: Log in to Azure CLI
-       uses: azure/login@v2
-       with:
-         client-id: ${{ secrets.AZURE_CLIENT_ID }}
-         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-         subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Log in to Azure CLI
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-     - name: Log in to Azure Container Registry
-       run: az acr login --name ${{ secrets.AZURE_ACR_NAME }}
+      - name: Log in to Azure Container Registry
+        run: az acr login --name ${{ secrets.AZURE_ACR_NAME }}
 
-     - id: vars
-       run: |
+      - id: vars
+        run: |
           echo "sha_short=${GITHUB_SHA:0:7}" >> $GITHUB_OUTPUT
-        echo "image_id=$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')" >> $GITHUB_OUTPUT
+          echo "image_id=$(echo $GITHUB_REPOSITORY | tr '[A-Z]' '[a-z]')" >> $GITHUB_OUTPUT
 
-     - name: Build and push Docker image to ACR
-       uses: docker/build-push-action@v5
-       with:
-         context: .
-         push: true
-         tags: |
-           ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
-           ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:${{ steps.vars.outputs.sha_short }}
+      - name: Build and push Docker image to ACR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
+            ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:${{ steps.vars.outputs.sha_short }}
 
-             # - name: Deploy to Azure Web App
-              #  uses: azure/webapps-deploy@v2
-              #  with:
-               #   app-name: ${{ secrets.AZURE_APP_NAME }}
-                #  images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
+    # - name: Deploy to Azure Web App
+    #   uses: azure/webapps-deploy@v2
+    #   with:
+    #     app-name: ${{ secrets.AZURE_APP_NAME }}
+    #     images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
+
+
+
+
+
+
         
