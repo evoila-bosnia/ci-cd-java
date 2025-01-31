@@ -221,11 +221,14 @@ jobs:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
 
-      - name: Get AKS Credentials
+      - name: Install kubelogin
+        run: az aks install-cli 
+  
+      - name: Get AKS Credentials (AAD Authentication)
         run: |
           az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-                                 --name ${{ secrets.AZURE_AKS_NAME }} \
-                                 --admin
+                                   --name ${{ secrets.AZURE_AKS_NAME }} \
+                                   --authentication-method kubelogin
   
       - name: Apply Kubernetes Manifests
         run: |
