@@ -221,20 +221,19 @@ jobs:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
 
-
-       - name: Get AKS Credentials
-         run: |
-           az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
                                  --name ${{ secrets.AZURE_AKS_NAME }} \
                                  --admin
   
-       - name: Apply Kubernetes Manifests
-         run: |
-           kubectl apply -f k8s/deployment.yaml
-           kubectl apply -f k8s/service.yaml
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
   
-        - name: Verify AKS deployment
-         run: kubectl rollout status deployment/my-app-deployment
+      - name: Verify AKS deployment
+        run: kubectl rollout status deployment/my-app-deployment
 
 
 
