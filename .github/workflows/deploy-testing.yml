@@ -228,7 +228,7 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
                                    --name ${{ secrets.AZURE_AKS_NAME }} \
-                                   --authentication-method kubelogin
+                                   --overwrite-existing
   
       - name: Apply Kubernetes Manifests
         run: |
