@@ -224,11 +224,14 @@ jobs:
       - name: Install kubelogin
         run: az aks install-cli 
   
-      - name: Get AKS Credentials (AAD Authentication)
-        run: |
-          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
-                                   --name ${{ secrets.AZURE_AKS_NAME }} \
-                                   --admin
+      - name: Set AKS context
+        id: set-context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AZURE_AKS_NAME }}
+      
+                                   
   
       - name: Apply Kubernetes Manifests
         run: |
