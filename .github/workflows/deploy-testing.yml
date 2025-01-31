@@ -221,16 +221,11 @@ jobs:
           app-name: ${{ secrets.AZURE_APP_NAME }}
           images: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:latest
 
-      - name: Install kubelogin
-        run: az aks install-cli 
   
-      - name: Set AKS context
-        id: set-context
-        uses: azure/aks-set-context@v3
-        with:
-          resource-group: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          cluster-name: ${{ secrets.AZURE_AKS_NAME }}
-      
+      - name: Set up AKS
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_AKS_NAME }}
+
                                    
   
       - name: Apply Kubernetes Manifests
