@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-deployment
+  labels:
+    app: my-app
+spec:
+  replicas: 3  # Number of pods to run
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+        - name: my-app
+          image: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/my-app:${{ steps.vars.outputs.sha_short }}  # ACR image URL
+          ports:
+            - containerPort: 8080  # Port your app runs on inside the container
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "0.5"
+            limits:
+              memory: "512Mi"
+              cpu: "1"
