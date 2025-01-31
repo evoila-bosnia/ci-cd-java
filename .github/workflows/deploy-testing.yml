@@ -226,7 +226,10 @@ jobs:
         run: |
           az aks get-credentials --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --name ${{ secrets.AZURE_AKS_NAME }}
 
-                                   
+      - name: Install kubelogin
+        run: az aks install-cli
+        
+                                    
   
       - name: Apply Kubernetes Manifests
         run: |
