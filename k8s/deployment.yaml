@@ -21,11 +21,11 @@ spec:
             - containerPort: 8080  # Port your app runs on inside the container
           resources:
             requests:
-              memory: "256Mi"
-              cpu: "0.5"
+              memory: "100Mi"
+              cpu: "0.1"
             limits:
-              memory: "512Mi"
-              cpu: "1"
+              memory: "200Mi"
+              cpu: "0.2"
       tolerations:
         - key: "CriticalAddonsOnly"
           operator: "Exists"
