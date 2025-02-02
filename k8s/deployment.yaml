@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: my-app
-          image: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/my-app:${{ steps.vars.outputs.sha_short }}  # ACR image URL
+          image: IMAGE_PLACEHOLDER
           ports:
             - containerPort: 8080  # Port your app runs on inside the container
           resources:
