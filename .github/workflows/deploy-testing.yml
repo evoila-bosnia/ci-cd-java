@@ -229,11 +229,11 @@ jobs:
       - name: Install kubelogin
         run: az aks install-cli
         
-                                    
   
       - name: Apply Kubernetes Manifests
         run: |
           kubectl apply -f k8s/deployment.yaml
+          kubectl set image deployment/my-app-deployment my-app=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ steps.vars.outputs.image_id }}:${{ steps.vars.outputs.sha_short }}
           kubectl apply -f k8s/service.yaml
   
       - name: Verify AKS deployment
